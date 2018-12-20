@@ -2,7 +2,7 @@ package com.klmklm.meeting_attendance.lib;
 
 public class Response {
     /*错误码*/
-    private Integer code;
+    private Integer status;
 
     /*提示信息 */
     private String message;
@@ -10,8 +10,8 @@ public class Response {
     /*具体内容*/
     private Object data;
 
-    private Response(Integer code, String message, Object data) {
-        this.code = code;
+    private Response(Integer status, String message, Object data) {
+        this.status = status;
         this.message = message;
         this.data = data;
     }
@@ -28,8 +28,8 @@ public class Response {
         return new Response(code, message, null);
     }
 
-    public Integer getCode() {
-        return code;
+    public Integer getStatus() {
+        return status;
     }
 
     public String getMessage() {
