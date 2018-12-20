@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -28,20 +28,15 @@ public class MeetingController {
 
     // 正在进行的会议列表
     @GetMapping("/ongoing-meetings")
-    public List<Meeting> getMeetings(){
+    public List<Meeting> getMeetings() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         List<Meeting> meetings = meetingService.findAll();
-        List<Meeting> result = new ArrayList<>();
 
-        for (Meeting meeting: meetings) {
-            Timestamp start = meeting.getStartTime();
-            Timestamp end = meeting.getEndTime();
-            if (now.before(end) && now.after(start)) {
-                result.add(meeting);
-            }
-        }
-
-        return result;
+        return meetings
+                .stream()
+                .filter(meeting -> now.before(meeting.getEndTime())
+                        && now.after(meeting.getStartTime()))
+                .collect(Collectors.toList());
     }
 
     // 获取某个会议的详细信息
