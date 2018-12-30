@@ -13,8 +13,10 @@ public class Meeting {
     private String title;
     private Timestamp startTime;
     private Timestamp endTime;
-    private String type;
+    private Integer type;
     private String state;
+    private String createBy;
+    private Timestamp createTime;
 
     @ManyToMany
     private List<Room> rooms;
@@ -26,6 +28,22 @@ public class Meeting {
 //        return meetingUsers;
 //    }
 
+
+    public String getCreateBy() {
+        return createBy;
+    }
+
+    public void setCreateBy(String createBy) {
+        this.createBy = createBy;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
+    }
 
     public List<Room> getRooms() {
         return rooms;
@@ -67,11 +85,11 @@ public class Meeting {
         this.endTime = endTime;
     }
 
-    public String getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 

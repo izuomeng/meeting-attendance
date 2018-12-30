@@ -5,7 +5,7 @@ import com.klmklm.meeting_attendance.entity.MeetingUser;
 import com.klmklm.meeting_attendance.entity.Room;
 import com.klmklm.meeting_attendance.entity.User;
 import com.klmklm.meeting_attendance.lib.Response;
-import com.klmklm.meeting_attendance.lib.TableResponse;
+import com.klmklm.meeting_attendance.lib.ListResponse;
 import com.klmklm.meeting_attendance.service.MeetingService;
 import com.klmklm.meeting_attendance.service.MeetingUserService;
 import com.klmklm.meeting_attendance.service.RoomService;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api")
@@ -46,58 +45,49 @@ public class MeetingController {
 
     // 获取所有会议
     @GetMapping("/all-meetings")
-    public Response getAllMeetings() {
-        return Response.success(meetingService.findAll());
+    public List<Meeting> getAllMeetings() {
+        return meetingService.findAll();
     }
 
     // 正在进行的会议列表
     @GetMapping("/ongoing-meetings")
-    public Response getMeetings() {
+    public List<Meeting> getMeetings() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
-        return Response.success(getCustomMeeting(
+        return getCustomMeeting(
                 meeting -> now.before(meeting.getEndTime()) && now.after(meeting.getStartTime())
-        ));
+        );
     }
 
     // 已完成会议
     @GetMapping("/finished-meetings")
-    public Response getFinishedMeetings() {
+    public List<Meeting> getFinishedMeetings() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
-        return Response.success(
-                getCustomMeeting(meeting -> now.after(meeting.getEndTime()))
-        );
+        return getCustomMeeting(meeting -> now.after(meeting.getEndTime()));
     }
 
     // 未开始会议
     @GetMapping("/waiting-meetings")
-    public Response getWaitingMeetings() {
+    public List<Meeting> getWaitingMeetings() {
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
-        return Response.success(
-                getCustomMeeting(meeting -> now.before(meeting.getStartTime()))
-        );
+        return getCustomMeeting(meeting -> now.before(meeting.getStartTime()));
     }
 
     // 获取某个会议的详细信息
     @GetMapping("/meeting/{id}")
-    public Response getMeetingDetail(@PathVariable Integer id) {
-        return Response.success(meetingService.findById(id));
-    }
-
-    @GetMapping("/meeting")
-    public Response getMeetingByTitle(@RequestParam("title") String title) {
-        return Response.success(meetingService.findByTitle(title));
+    public Meeting getMeetingDetail(@PathVariable Integer id) {
+        return meetingService.findById(id).orElse(null);
     }
 
     // 查看会议报名情况
     @GetMapping("/meeting/{id}/sign-info")
-    public TableResponse getMeetingSignInfo(
+    public ListResponse<Map<String, Object>> getMeetingSignInfo(
             @PathVariable Integer id,
             @RequestParam(value = "type", required = false, defaultValue = "1") Integer type
     ) {
-        return TableResponse.success(
+        return new ListResponse<>(
                 this
                         .meetingUserService
                         .findAllSignedUser(id)
@@ -130,12 +120,12 @@ public class MeetingController {
                             return result;
                         })
                         .collect(Collectors.toList())
-        );
+        ).success();
     }
 
     @PostMapping("/meeting-user")
     @Transactional
-    public Response addMeetingUser(Integer uid, Integer mid, Integer rid) {
+    public Object addMeetingUser(Integer uid, Integer mid, Integer rid) {
         MeetingUser meetingUser = new MeetingUser();
         Meeting meeting = meetingService.findById(mid).orElse(null);
         User user = userService.findById(uid).orElse(null);
@@ -144,15 +134,15 @@ public class MeetingController {
         meetingUser.setUser(user);
         meetingUser.setRoom(room);
         meetingUserService.save(meetingUser);
-        return Response.success();
+        return null;
     }
 
     @PostMapping("/meeting")
     @Transactional
-    public Response addMeeting(
+    public Object addMeeting(
             @RequestParam("start_time") Timestamp st,
             @RequestParam("end_time") Timestamp et,
-            @RequestParam("type") String type,
+            @RequestParam("type") Integer type,
             @RequestParam("title") String title,
             @RequestParam("state") String state
     ) {
@@ -163,6 +153,6 @@ public class MeetingController {
         meeting.setState(state);
         meeting.setType(type);
         meetingService.save(meeting);
-        return Response.success();
+        return null;
     }
 }
