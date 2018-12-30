@@ -10,18 +10,18 @@ public class Response {
     /*具体内容*/
     private Object data;
 
-    private Response(Integer status, String message, Object data) {
+    Response(Integer status, String message, Object data) {
         this.status = status;
         this.message = message;
         this.data = data;
     }
 
     public static Response success(Object object) {
-        return new Response(200, "", object);
+        return new Response(0, "", object);
     }
 
     public static Response success() {
-        return new Response(200, "", null);
+        return new Response(0, "", null);
     }
 
     public static Response error(Integer code, String message) {

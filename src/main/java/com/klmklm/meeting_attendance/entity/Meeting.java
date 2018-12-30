@@ -2,24 +2,45 @@ package com.klmklm.meeting_attendance.entity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "meeting")
-@EntityListeners(Meeting.class)
 public class Meeting {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer meetingId;
+    @GeneratedValue
+    private Integer id;
     private String title;
     private Timestamp startTime;
     private Timestamp endTime;
+    private String type;
+    private String state;
 
-    public Integer getMeetingId() {
-        return meetingId;
+    @ManyToMany
+    private List<Room> rooms;
+
+//    @OneToMany(mappedBy = "meeting")
+//    private List<MeetingUser> meetingUsers;
+//
+//    public List<MeetingUser> getMeetingUsers() {
+//        return meetingUsers;
+//    }
+
+
+    public List<Room> getRooms() {
+        return rooms;
     }
 
-    public void setMeetingId(Integer meetingId) {
-        this.meetingId = meetingId;
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -46,8 +67,19 @@ public class Meeting {
         this.endTime = endTime;
     }
 
-    @Override
-    public String toString() {
-        return String.format("title: %s\nstart time: %s\nend time: %s", title, startTime, endTime);
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }
