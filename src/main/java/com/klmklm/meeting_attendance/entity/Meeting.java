@@ -21,14 +21,6 @@ public class Meeting {
     @ManyToMany
     private List<Room> rooms;
 
-//    @OneToMany(mappedBy = "meeting")
-//    private List<MeetingUser> meetingUsers;
-//
-//    public List<MeetingUser> getMeetingUsers() {
-//        return meetingUsers;
-//    }
-
-
     public String getCreateBy() {
         return createBy;
     }

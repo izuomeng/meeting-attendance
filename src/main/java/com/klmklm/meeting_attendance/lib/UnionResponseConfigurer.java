@@ -12,8 +12,12 @@ import java.util.List;
 
 @Configuration
 public class UnionResponseConfigurer implements InitializingBean {
+    private final RequestMappingHandlerAdapter handlerAdapter;
+
     @Autowired
-    private RequestMappingHandlerAdapter handlerAdapter;
+    public UnionResponseConfigurer(RequestMappingHandlerAdapter handlerAdapter) {
+        this.handlerAdapter = handlerAdapter;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
