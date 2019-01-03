@@ -13,7 +13,8 @@ public class Meeting {
     private String title;
     private Timestamp startTime;
     private Timestamp endTime;
-    private Integer type;
+    private Timestamp signTime;
+    private String type;
     private String state;
     private String createBy;
     private Timestamp createTime;
@@ -77,11 +78,11 @@ public class Meeting {
         this.endTime = endTime;
     }
 
-    public Integer getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -91,5 +92,13 @@ public class Meeting {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public Timestamp getSignTime() {
+        return signTime;
+    }
+
+    public void setSignTime(Timestamp signTime) {
+        this.signTime = signTime;
     }
 }

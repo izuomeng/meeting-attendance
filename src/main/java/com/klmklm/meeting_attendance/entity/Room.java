@@ -10,6 +10,11 @@ public class Room {
     @Id
     private Integer id;
     private String roomName;
+    private String location;
+
+    public String getLocation() {
+        return location;
+    }
 
     public Integer getId() {
         return id;
