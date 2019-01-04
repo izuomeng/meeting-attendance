@@ -296,11 +296,11 @@ public class MeetingController {
                             MeetingRooms meetingRoom = meetingRoomService
                                     .findById(mr)
                                     .orElse(null);
-                            List<MeetingUser> meetingUsers = meetingUserService
-                                    .findAllSignedUser(id);
+                            List<MeetingUser> meetingRoomUsers = meetingUserService
+                                    .findAllSignedUser(id, room.getId());
                             map.put("roomName", room.getRoomName());
                             map.put("roomLocation", room.getLocation());
-                            map.put("signNum", meetingUsers.size());
+                            map.put("signNum", meetingRoomUsers.size());
                             map.put("signTime", meeting.getSignTime());
                             if (meetingRoom != null && meetingRoom.getSignTime() != null) {
                                 map.put("signTime", meetingRoom.getSignTime());

@@ -13,6 +13,9 @@ public interface MeetingUserService extends JpaRepository<MeetingUser, Integer> 
     @Query("from MeetingUser m where m.meeting.id = ?1")
     List<MeetingUser> findAllSignedUser(Integer meetingId);
 
+    @Query("from MeetingUser m where m.meeting.id = ?1 and m.room.id = ?2")
+    List<MeetingUser> findAllSignedUser(Integer meetingId, Integer roomId);
+
     @Query("from MeetingUser m where m.meeting.id = ?1 and m.user.id = ?2")
     MeetingUser findMeetingUser(Integer meetingId, Integer userId);
 }
