@@ -28,21 +28,19 @@ public class MeetingController {
     private final MeetingUserService meetingUserService;
     private final UserService userService;
     private final RoomService roomService;
-    private final MeetingRoomService meetingRoomService;
+
 
     @Autowired
     public MeetingController(
             MeetingService meetingService,
             MeetingUserService meetingUserService,
             UserService userService,
-            RoomService roomService,
-            MeetingRoomService meetingRoomService
+            RoomService roomService
     ) {
         this.meetingService = meetingService;
         this.meetingUserService = meetingUserService;
         this.userService = userService;
         this.roomService = roomService;
-        this.meetingRoomService = meetingRoomService;
     }
 
     // helpers
@@ -278,36 +276,5 @@ public class MeetingController {
         result.put("decline", declineUsers.size());
         result.put("unknown", unknownUsers.size());
         return result;
-    }
-
-    @GetMapping("/meeting/{id}/rooms")
-    public ListResponse<Map<String, Object>> getMeetingRooms(
-            @PathVariable Integer id
-    ) throws MyException {
-        Meeting meeting = meetingService.findById(id).orElse(null);
-        if (meeting == null) {
-            throw new MyException("该会议不存在", 404);
-        }
-        return new ListResponse<>(
-                meeting.getRooms().stream()
-                        .map(room -> {
-                            Map<String, Object> map = new HashMap<>();
-                            MeetingRoomMultiKeys mr = new MeetingRoomMultiKeys(id, room.getId());
-                            MeetingRooms meetingRoom = meetingRoomService
-                                    .findById(mr)
-                                    .orElse(null);
-                            List<MeetingUser> meetingRoomUsers = meetingUserService
-                                    .findAllSignedUser(id, room.getId());
-                            map.put("roomName", room.getRoomName());
-                            map.put("roomLocation", room.getLocation());
-                            map.put("signNum", meetingRoomUsers.size());
-                            map.put("signTime", meeting.getSignTime());
-                            if (meetingRoom != null && meetingRoom.getSignTime() != null) {
-                                map.put("signTime", meetingRoom.getSignTime());
-                            }
-                            return map;
-                        })
-                        .collect(Collectors.toList())
-        ).success();
     }
 }

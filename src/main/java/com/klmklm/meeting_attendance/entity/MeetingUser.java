@@ -9,14 +9,10 @@ public class MeetingUser {
     @Id
     @GeneratedValue
     private Integer id;
-
-    // 0 for no and 1 for yes
-    private Integer attendance;
-
-    // 0: 未响应; 1: 已拒绝; 2:确认参加
-    private Integer state;
-
+    private Integer attendance; // 0 for no and 1 for yes
+    private Integer state; // 0: 未响应; 1: 已拒绝; 2:确认参加
     private Timestamp signTime;
+    private String image;
 
     @ManyToOne
     @JoinColumn(name = "meeting_id")
@@ -84,5 +80,13 @@ public class MeetingUser {
 
     public Integer getState() {
         return state;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MeetingService extends JpaRepository<Meeting, Integer> {
-    @Query("select m from Meeting m where m.title = ?1")
+    @Query("from Meeting m where m.title = ?1")
     Meeting findByTitle(String title);
 }
