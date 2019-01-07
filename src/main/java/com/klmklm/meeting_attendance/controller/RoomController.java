@@ -3,13 +3,11 @@ package com.klmklm.meeting_attendance.controller;
 import com.klmklm.meeting_attendance.entity.*;
 import com.klmklm.meeting_attendance.lib.ListResponse;
 import com.klmklm.meeting_attendance.lib.MyException;
-import com.klmklm.meeting_attendance.service.MeetingRoomService;
-import com.klmklm.meeting_attendance.service.MeetingService;
-import com.klmklm.meeting_attendance.service.MeetingUserService;
-import com.klmklm.meeting_attendance.service.RoomService;
+import com.klmklm.meeting_attendance.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
@@ -24,18 +22,21 @@ public class RoomController {
     private final MeetingService meetingService;
     private final MeetingRoomService meetingRoomService;
     private final RoomService roomService;
+    private final EquipmentService equipmentService;
 
     @Autowired
     RoomController(
             MeetingUserService meetingUserService,
             MeetingService meetingService,
             MeetingRoomService meetingRoomService,
-            RoomService roomService
+            RoomService roomService,
+            EquipmentService equipmentService
     ) {
         this.meetingUserService = meetingUserService;
         this.meetingService = meetingService;
         this.meetingRoomService = meetingRoomService;
         this.roomService = roomService;
+        this.equipmentService = equipmentService;
     }
 
     private String getSignDescription(Timestamp targetTime, Timestamp realTime) {
@@ -128,5 +129,46 @@ public class RoomController {
                         .filter(item -> item.getType().equals(type))
                         .collect(Collectors.toList())
         ).success();
+    }
+
+    @GetMapping("/room/config")
+    public Map<String, Object> getMeetingRoomConfig(Integer mid, Integer rid) throws MyException {
+        Meeting meeting = meetingService
+                .findById(mid)
+                .orElseThrow(() -> new MyException("会议不存在", 404));
+        MeetingRoomMultiKeys mr = new MeetingRoomMultiKeys(mid, rid);
+        MeetingRooms meetingRoom = meetingRoomService
+                .findById(mr)
+                .orElseThrow(() -> new MyException("该会议没有预约该会议室", 404));
+        Map<String, Object> result = new HashMap<>();
+
+        Timestamp signTime = Optional.ofNullable(meetingRoom.getSignTime())
+                .orElse(meeting.getSignTime());
+        Integer signWay = Optional.ofNullable(meetingRoom.getSignWay())
+                .orElse(meeting.getSignWay());
+        Integer collectHz = Optional.ofNullable(meetingRoom.getCollectHz())
+                .orElse(meeting.getCollectHz());
+        Integer collectOutInfo = Optional.ofNullable(meetingRoom.getCollectOutInfo())
+                .orElse(meeting.getCollectOutInfo());
+
+        result.put("signTime", signTime);
+        result.put("signWay", signWay);
+        result.put("collectHz", collectHz);
+        result.put("collectOutInfo", collectOutInfo);
+        return result;
+    }
+
+    @PutMapping("/room/config")
+    public Object updateMeetingRoomConfig(@RequestBody MeetingRooms meetingRoom) {
+        meetingRoomService.save(meetingRoom);
+        return null;
+    }
+
+
+    @PutMapping("/equipment")
+    @Transactional
+    public Object updateEquipment(@RequestBody Equipment equipment) {
+        equipmentService.save(equipment);
+        return null;
     }
 }

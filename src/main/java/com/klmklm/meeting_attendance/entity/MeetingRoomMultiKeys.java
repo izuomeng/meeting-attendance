@@ -7,6 +7,7 @@ public class MeetingRoomMultiKeys implements Serializable {
     private Integer mid;
     private Integer rid;
 
+    public MeetingRoomMultiKeys(){}
     public MeetingRoomMultiKeys(Integer mid, Integer rid){
         this.mid = mid;
         this.rid = rid;
