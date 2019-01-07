@@ -1,18 +1,14 @@
 package com.klmklm.meeting_attendance.controller;
 
-import com.klmklm.meeting_attendance.entity.Meeting;
-import com.klmklm.meeting_attendance.entity.MeetingRoomMultiKeys;
-import com.klmklm.meeting_attendance.entity.MeetingRooms;
-import com.klmklm.meeting_attendance.entity.MeetingUser;
+import com.klmklm.meeting_attendance.entity.*;
 import com.klmklm.meeting_attendance.lib.ListResponse;
 import com.klmklm.meeting_attendance.lib.MyException;
 import com.klmklm.meeting_attendance.service.MeetingRoomService;
 import com.klmklm.meeting_attendance.service.MeetingService;
 import com.klmklm.meeting_attendance.service.MeetingUserService;
+import com.klmklm.meeting_attendance.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -27,16 +23,19 @@ public class RoomController {
     private final MeetingUserService meetingUserService;
     private final MeetingService meetingService;
     private final MeetingRoomService meetingRoomService;
+    private final RoomService roomService;
 
     @Autowired
     RoomController(
             MeetingUserService meetingUserService,
             MeetingService meetingService,
-            MeetingRoomService meetingRoomService
+            MeetingRoomService meetingRoomService,
+            RoomService roomService
     ) {
         this.meetingUserService = meetingUserService;
         this.meetingService = meetingService;
         this.meetingRoomService = meetingRoomService;
+        this.roomService = roomService;
     }
 
     private String getSignDescription(Timestamp targetTime, Timestamp realTime) {
@@ -82,6 +81,11 @@ public class RoomController {
         ).success();
     }
 
+    @GetMapping("/room/{id}")
+    public Room getRoom(@PathVariable Integer id) throws MyException {
+        return roomService.findById(id).orElseThrow(() -> new MyException("会场不存在", 404));
+    }
+
     @GetMapping("/room/sign")
     public ListResponse<Map<String, Object>> getMeetingStatistics(
             Integer mid,
@@ -106,6 +110,22 @@ public class RoomController {
                             result.put("image", meetingUser.getImage());
                             return result;
                         })
+                        .collect(Collectors.toList())
+        ).success();
+    }
+
+    @GetMapping("/room/{id}/equipment")
+    public ListResponse<Equipment> getRoomEquipment(
+            @PathVariable Integer id,
+            @RequestParam(required = false, value = "type") String type
+    ) throws MyException {
+        Room room = roomService.findById(id).orElseThrow(() -> new MyException("会场不存在", 404));
+        return new ListResponse<>(
+                type == null
+                        ? room.getEquipment()
+                        : room.getEquipment()
+                        .stream()
+                        .filter(item -> item.getType().equals(type))
                         .collect(Collectors.toList())
         ).success();
     }
