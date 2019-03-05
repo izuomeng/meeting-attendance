@@ -163,21 +163,9 @@ public class MeetingController {
         return result;
     }
 
-    @PostMapping("/meeting")
+    @PutMapping("/meeting")
     @Transactional
-    public Object addMeeting(
-            @RequestParam("start_time") Timestamp st,
-            @RequestParam("end_time") Timestamp et,
-            @RequestParam("type") String type,
-            @RequestParam("title") String title,
-            @RequestParam("state") String state
-    ) {
-        Meeting meeting = new Meeting();
-        meeting.setTitle(title);
-        meeting.setStartTime(st);
-        meeting.setEndTime(et);
-        meeting.setState(state);
-        meeting.setType(type);
+    public Object editMeeting(@RequestBody Meeting meeting) {
         meetingService.save(meeting);
         return null;
     }
