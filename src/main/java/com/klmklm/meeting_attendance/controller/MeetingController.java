@@ -118,8 +118,12 @@ public class MeetingController {
                 result = getCustomMeeting(meeting -> now.before(meeting.getStartTime()));
                 break;
             default:
-                result = getCustomMeeting(meeting -> true);
+                result = null;
                 break;
+        }
+
+        if (result == null) {
+            return null;
         }
 
         if (date != null) {
@@ -227,9 +231,7 @@ public class MeetingController {
         ).success();
     }
 
-    @PostMapping("/meeting/{mid}/sign")
-    @Transactional
-    public Object addMeetingUser(@PathVariable Integer mid, Integer uid, Integer rid) {
+    private MeetingUser createMeetingUser(Integer mid, Integer uid, Integer rid) {
         MeetingUser meetingUser = new MeetingUser();
         Meeting meeting = meetingService.findById(mid).orElse(null);
         User user = userService.findById(uid).orElse(null);
@@ -237,32 +239,71 @@ public class MeetingController {
         meetingUser.setMeeting(meeting);
         meetingUser.setUser(user);
         meetingUser.setRoom(room);
+        return meetingUser;
+    }
+
+    @PostMapping("/meeting/sign")
+    @Transactional
+    public Object addMeetingUser(Integer mid, Integer uid, Integer rid) {
+        MeetingUser meetingUser = createMeetingUser(mid, uid, rid);
         meetingUserService.save(meetingUser);
         return null;
     }
 
-    @DeleteMapping("/meeting/{mid}/sign")
+    @PutMapping("/meeting/sign")
     @Transactional
-    public Object deleteMeetingUser(@PathVariable Integer mid, Integer uid) throws MyException {
-        MeetingUser target = meetingUserService.findMeetingUser(mid, uid);
-        if (target == null) {
-            throw new MyException("没有该记录", 404);
-        }
+    public Object updateMeetingUser(Integer id, Integer attendance, Timestamp time, String image) throws MyException {
+        MeetingUser meetingUser = meetingUserService
+                .findById(id)
+                .orElseThrow(() -> new MyException("Can not find meetingUser", 1));
+        meetingUser.setAttendance(attendance);
+        meetingUser.setSignTime(time);
+        meetingUser.setImage(image);
+        meetingUserService.save(meetingUser);
+        return null;
+    }
+
+    @DeleteMapping("/meeting/sign")
+    @Transactional
+    public Object deleteMeetingUser(Integer id) throws MyException {
+        MeetingUser target = meetingUserService
+                .findById(id)
+                .orElseThrow(() -> new MyException("Can not find meetingUser", 1));
         meetingUserService.delete(target);
         return null;
     }
 
-    @GetMapping("/meeting/{id}/statistics")
-    public Map<String, Integer> getMeetingStatistics(@PathVariable Integer id) {
-        Map<String, Integer> result = new HashMap<>();
-        List<MeetingUser> meetingUsers = meetingUserService.findAllSignedUser(id);
-        List<MeetingUser> confirmUsers = getMeetingUsersByState(id, 2);
-        List<MeetingUser> declineUsers = getMeetingUsersByState(id, 1);
-        List<MeetingUser> unknownUsers = getMeetingUsersByState(id, 0);
+    private Map<String, Object> getMeetingStatistics(Integer mid) throws MyException {
+        Map<String, Object> result = new HashMap<>();
+        Meeting meeting = meetingService.findById(mid).orElseThrow(() -> new MyException("meeting doesn't exist", 1));
+        List<MeetingUser> meetingUsers = meetingUserService.findAllSignedUser(mid);
+        List<MeetingUser> confirmUsers = getMeetingUsersByState(mid, 2);
+        List<MeetingUser> declineUsers = getMeetingUsersByState(mid, 1);
+        List<MeetingUser> unknownUsers = getMeetingUsersByState(mid, 0);
         result.put("total", meetingUsers.size());
         result.put("confirm", confirmUsers.size());
         result.put("decline", declineUsers.size());
         result.put("unknown", unknownUsers.size());
+        result.put("title", meeting.getTitle());
+        result.put("id", mid);
         return result;
+    }
+
+    @GetMapping("/meetings/statistics")
+    public List<Map<String, Object>> getAllStatistics() {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        Stream<Map<String, Object>> finishedMeetings =
+                getCustomMeeting(meeting -> now.after(meeting.getEndTime()));
+
+        return finishedMeetings
+                .map(item -> {
+                    try {
+                        return getMeetingStatistics((Integer)item.get("id"));
+                    } catch (MyException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .collect(Collectors.toList());
     }
 }

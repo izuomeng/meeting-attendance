@@ -12,5 +12,4 @@ public class GlobalExceptionHandler {
     public Response jsonErrorHandler(MyException e) {
         return new Response(e.getCode(), e.getMessage(),null);
     }
-
 }

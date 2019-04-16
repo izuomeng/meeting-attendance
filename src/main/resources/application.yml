@@ -5,7 +5,7 @@ spring:
   #连接池配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://rm-m5ehef7hg63n3d2660o.mysql.rds.aliyuncs.com/klmklm?characterEncoding=UTF-8&allowMultiQueries=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2b8
+    url: jdbc:mysql://rm-2ze60l43jid40k71m6o.mysql.rds.aliyuncs.com/klmklm?characterEncoding=UTF-8&allowMultiQueries=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2b8
     username: user
     password: Aa123456
   jpa:

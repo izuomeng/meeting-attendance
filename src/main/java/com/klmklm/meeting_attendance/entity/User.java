@@ -11,6 +11,7 @@ public class User {
     private String name;
     private String email;
     private String phone;
+    private String face;
 //    @OneToMany(mappedBy = "user")
 //    private List<MeetingUser> meetingUsers;
 //
@@ -34,4 +35,7 @@ public class User {
         return phone;
     }
 
+    public String getFace() {
+        return face;
+    }
 }

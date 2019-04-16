@@ -46,7 +46,7 @@ public class RoomController {
         long targetTimestamp = targetTime.getTime();
         long realTimestamp = realTime.getTime();
         if (realTimestamp > targetTimestamp) {
-            long sub = (realTimestamp - targetTimestamp) / 60;
+            long sub = (realTimestamp - targetTimestamp) / 60000;
             return String.format("迟到%d分钟", sub);
         } else {
             return "准时到场";
@@ -101,7 +101,10 @@ public class RoomController {
                             Map<String, Object> result = new HashMap<>();
                             Timestamp targetSignTime = Optional.ofNullable(meeting.getSignTime())
                                     .orElse(meeting.getStartTime());
+                            result.put("id", meetingUser.getId());
+                            result.put("uid", meetingUser.getUser().getId());
                             result.put("userName", meetingUser.getUser().getName());
+                            result.put("face", meetingUser.getUser().getFace());
                             result.put("signTime", meetingUser.getSignTime());
                             result.put("signDesc", getSignDescription(
                                     targetSignTime,
@@ -109,6 +112,7 @@ public class RoomController {
                             ));
                             result.put("cameraName", "waiting...");
                             result.put("image", meetingUser.getImage());
+
                             return result;
                         })
                         .collect(Collectors.toList())
