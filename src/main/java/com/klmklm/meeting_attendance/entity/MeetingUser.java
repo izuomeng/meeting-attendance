@@ -13,6 +13,7 @@ public class MeetingUser {
     private Integer state; // 0: 未响应; 1: 已拒绝; 2:确认参加
     private Timestamp signTime;
     private String image;
+    private String camera;
 
     @ManyToOne
     @JoinColumn(name = "meeting_id")
@@ -88,5 +89,13 @@ public class MeetingUser {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getCamera() {
+        return camera;
+    }
+
+    public void setCamera(String camera) {
+        this.camera = camera;
     }
 }

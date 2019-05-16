@@ -110,7 +110,7 @@ public class RoomController {
                                     targetSignTime,
                                     meetingUser.getSignTime()
                             ));
-                            result.put("cameraName", "waiting...");
+                            result.put("cameraName", meetingUser.getCamera());
                             result.put("image", meetingUser.getImage());
 
                             return result;

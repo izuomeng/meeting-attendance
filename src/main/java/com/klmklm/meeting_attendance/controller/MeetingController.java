@@ -176,7 +176,7 @@ public class MeetingController {
 
     // 查看某个的会议报名/签到情况
     @GetMapping("/meeting/{id}/sign")
-    public ListResponse<Map<String, Object>> getMeetingSignInfo(
+    public ListResponse<Map<String, Object>> r(
             @PathVariable Integer id,
             @RequestParam(value = "type", required = false, defaultValue = "1") Integer type,
             @RequestParam(value = "dimension", required = false, defaultValue = "")
@@ -225,6 +225,9 @@ public class MeetingController {
                             // 注意这个signTime是真实签到时间，不是目标签到时间
                             result.put("signTime", item.getSignTime());
                             result.put("attendance", item.getAttendance());
+                            result.put("face", user.getFace());
+                            result.put("image", item.getImage());
+                            result.put("cameraName", item.getCamera());
                             return result;
                         })
                         .collect(Collectors.toList())
@@ -252,13 +255,14 @@ public class MeetingController {
 
     @PutMapping("/meeting/sign")
     @Transactional
-    public Object updateMeetingUser(Integer id, Integer attendance, Timestamp time, String image) throws MyException {
+    public Object updateMeetingUser(Integer id, Integer attendance, Timestamp time, String image, String camera) throws MyException {
         MeetingUser meetingUser = meetingUserService
                 .findById(id)
                 .orElseThrow(() -> new MyException("Can not find meetingUser", 1));
         meetingUser.setAttendance(attendance);
         meetingUser.setSignTime(time);
         meetingUser.setImage(image);
+        meetingUser.setCamera(camera);
         meetingUserService.save(meetingUser);
         return null;
     }
@@ -290,20 +294,24 @@ public class MeetingController {
     }
 
     @GetMapping("/meetings/statistics")
-    public List<Map<String, Object>> getAllStatistics() {
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        Stream<Map<String, Object>> finishedMeetings =
-                getCustomMeeting(meeting -> now.after(meeting.getEndTime()));
+        public List<Map<String, Object>> getAllStatistics() {
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            Stream<Map<String, Object>> finishedMeetings =
+                    getCustomMeeting(meeting -> now.after(meeting.getEndTime()));
 
-        return finishedMeetings
-                .map(item -> {
-                    try {
-                        return getMeetingStatistics((Integer)item.get("id"));
-                    } catch (MyException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .collect(Collectors.toList());
+            return finishedMeetings
+                    .map(item -> {
+                        try {
+                            return getMeetingStatistics((Integer)item.get("id"));
+                        } catch (MyException e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                    })
+                    .collect(Collectors.toList());
+    }
+    @GetMapping("/meeting/{id}/statistics")
+    public Map<String, Object> getAllStatistics(@PathVariable Integer id) throws MyException {
+        return getMeetingStatistics(id);
     }
 }

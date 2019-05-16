@@ -16,20 +16,23 @@ public class Meeting {
     private Timestamp signTime;
     private String type;
     private String state;
-    private String createBy;
     private Timestamp createTime;
     private Integer signWay; // 0:统一签到; 1:入场签到
     private Integer collectHz; // 单位秒
     private Integer collectOutInfo; // 0:采集; 1:不采集
 
+    @ManyToOne
+    @JoinColumn(name = "create_by")
+    private User createBy;
+
     @ManyToMany
     private List<Room> rooms;
 
-    public String getCreateBy() {
+    public User getCreateBy() {
         return createBy;
     }
 
-    public void setCreateBy(String createBy) {
+    public void setCreateBy(User createBy) {
         this.createBy = createBy;
     }
 
